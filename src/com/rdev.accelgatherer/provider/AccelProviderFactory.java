@@ -1,5 +1,7 @@
 package com.rdev.accelgatherer.provider;
 
+import android.content.Context;
+
 /**
  * Created by IntelliJ IDEA.
  * User: revenge
@@ -11,11 +13,25 @@ public class AccelProviderFactory {
     private AccelProviderFactory() {
     }
 
-    public static AccelProviderFactory getInstance(){return SingleToneHolder.INSTANCE;}
+    public AbstractAccelerometerProvider getPhoneAccelerator(Context context) {
+        return new HardwareAccelerometerProvider(context);
+
+    }
+
+    public AbstractAccelerometerProvider getSimulatorAccelerator(Context context) {
+        return new SimulatorAccelerometerProvider(context);
+    }
 
 
-    private static class SingleToneHolder{
-        protected  SingleToneHolder(){}
+    public static AccelProviderFactory getInstance() {
+        return SingleToneHolder.INSTANCE;
+    }
+
+
+    private static class SingleToneHolder {
+        protected SingleToneHolder() {
+        }
+
         private static AccelProviderFactory INSTANCE = new AccelProviderFactory();
     }
 }

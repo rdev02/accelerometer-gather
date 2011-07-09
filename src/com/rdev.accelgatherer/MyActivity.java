@@ -2,20 +2,16 @@ package com.rdev.accelgatherer;
 
 import android.app.Activity;
 import android.content.Context;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.util.DisplayMetrics;
 import android.widget.TextView;
-import org.openintents.sensorsimulator.hardware.Sensor;
-import org.openintents.sensorsimulator.hardware.SensorEvent;
-import org.openintents.sensorsimulator.hardware.SensorEventListener;
-import org.openintents.sensorsimulator.hardware.SensorManagerSimulator;
+import com.rdev.accelgatherer.data.SensorDataListener;
+import com.rdev.accelgatherer.provider.AbstractAccelerometerProvider;
+import com.rdev.accelgatherer.provider.AccelProviderFactory;
 
 public class MyActivity extends Activity {
     private SimulationView mSimulationView;
-    //private SensorManager mSensorManager;
-    private SensorManagerSimulator mSensorManager;
+    private AbstractAccelerometerProvider accProvider;
     private PowerManager mPowerManager;
     private PowerManager.WakeLock mWakeLock;
 
@@ -30,9 +26,7 @@ public class MyActivity extends Activity {
 
         super.onCreate(savedInstanceState);
 
-        // Get an instance of the SensorManager
-        //mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE); //real manager
-        mSensorManager =  SensorManagerSimulator.getSystemService(this, SENSOR_SERVICE);
+        accProvider = AccelProviderFactory.getInstance().getSimulatorAccelerator(this);
 
         // Get an instance of the PowerManager
         mPowerManager = (PowerManager) getSystemService(POWER_SERVICE);
@@ -43,6 +37,9 @@ public class MyActivity extends Activity {
 
         // instantiate our simulation view and set it as the activity's content
         mSimulationView = new SimulationView(this);
+
+        accProvider.addListener(mSimulationView);
+
         setContentView(mSimulationView);
 
     }
@@ -58,7 +55,7 @@ public class MyActivity extends Activity {
         mWakeLock.acquire();
 
         // Start the simulation
-        mSimulationView.startSimulation();
+        accProvider.startTracking();
     }
 
     @Override
@@ -70,67 +67,27 @@ public class MyActivity extends Activity {
         */
 
         // Stop the simulation
-        mSimulationView.stopSimulation();
+        accProvider.stopTracking();
 
         // and release our wake-lock
         mWakeLock.release();
     }
 
-    class SimulationView extends TextView implements SensorEventListener {
-
-        private Sensor mAccelerometer;
-
-        public void startSimulation() {
-            mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
-                mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_FASTEST);
-                mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_FASTEST);
-                mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_TEMPERATURE), SensorManager.SENSOR_DELAY_FASTEST);
-
-                //mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
-
-        }
-
-        public void stopSimulation() {
-            mSensorManager.unregisterListener(this);
-        }
+    class SimulationView extends TextView implements SensorDataListener {
 
         public SimulationView(Context context) {
             super(context);
-
-            try{mSensorManager.connectSimulator();}
-            catch(Exception ex){
-                System.out.println("ex = " + ex);
-            }
-            mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            DisplayMetrics metrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
         }
 
         @Override
-        public void onSensorChanged(SensorEvent event) {
-            if (event.type != Sensor.TYPE_ACCELEROMETER)
-                return;
-            /*
-            * record the accelerometer data, the event's timestamp as well as
-            * the current time. The latter is needed so we can calculate the
-            * "present" time during rendering. In this application, we need to
-            * take into account how the screen is rotated with respect to the
-            * sensors (which always return data in a coordinate space aligned
-            * to with the screen in its native orientation).
-            */
-
-            float sensorX = event.values[0];
-            float sensorY = event.values[1];
-            float sensorZ = event.values[2];
+        public void onSensorChanged(com.rdev.accelgatherer.data.SensorEvent event) {
+            float[] values = event.getValues();
+            float sensorX = values[0];
+            float sensorY = values[1];
+            float sensorZ = values[2];
 
             String text = String.format("Sensor data: %.2f : %.2f : %.2f", sensorX, sensorY, sensorZ);
             this.setText(text);
-            System.out.println(text);
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
     }
 
