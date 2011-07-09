@@ -1,4 +1,4 @@
-package com.example;
+package com.rdev.accelgatherer;
 
 /**
  * Created by IntelliJ IDEA.

@@ -1,4 +1,4 @@
-package com.example;
+package com.rdev.accelgatherer;
 
 import android.app.Activity;
 import android.content.Context;
@@ -18,7 +18,6 @@ public class MyActivity extends Activity {
     private SensorManagerSimulator mSensorManager;
     private PowerManager mPowerManager;
     private PowerManager.WakeLock mWakeLock;
-    private boolean isRegistered;
 
 
     /**
@@ -27,7 +26,7 @@ public class MyActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(com.rdev.accelgatherer.R.layout.main);
 
         super.onCreate(savedInstanceState);
 
@@ -97,7 +96,6 @@ public class MyActivity extends Activity {
 
         public SimulationView(Context context) {
             super(context);
-            isRegistered = false;
 
             try{mSensorManager.connectSimulator();}
             catch(Exception ex){
