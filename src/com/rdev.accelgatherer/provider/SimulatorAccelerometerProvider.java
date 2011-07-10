@@ -54,7 +54,7 @@ class SimulatorAccelerometerProvider extends AbstractAccelerometerProvider imple
         if (event.type == Sensor.TYPE_ORIENTATION) {
             sensorTypeE = SensorTypeEnum.ORIENTATION;
         }
-        com.rdev.accelgatherer.data.SensorEvent evt = new com.rdev.accelgatherer.data.SensorEvent(event.values, event.accuracy, event.time, sensorTypeE);
+        com.rdev.accelgatherer.data.SensorEvent evt = new com.rdev.accelgatherer.data.SensorEvent(event.values.clone(), event.accuracy, event.time, sensorTypeE);
 
         notifySensorChanged(evt);
     }

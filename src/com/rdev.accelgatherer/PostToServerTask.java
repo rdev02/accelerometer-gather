@@ -1,6 +1,7 @@
 package com.rdev.accelgatherer;
 
 import android.os.AsyncTask;
+import com.rdev.accelgatherer.data.SensorEvent;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -18,7 +19,7 @@ import java.util.Collection;
  * Date: 7/10/11
  * Time: 12:55 AM
  */
-public class PostToServerTask extends AsyncTask<Collection<float[]>, Void, Void> {
+public class PostToServerTask extends AsyncTask<Collection<SensorEvent>, Void, Void> {
     private static final String urlToPostToStr = "http://172.24.222.223:8080/testReceiver/testGet?";
     private static URL urlToPostTo;
 
@@ -31,15 +32,15 @@ public class PostToServerTask extends AsyncTask<Collection<float[]>, Void, Void>
     }
 
     @Override
-    protected Void doInBackground(Collection<float[]>... collections) {
+    protected Void doInBackground(Collection<SensorEvent>... collections) {
         for (int i = 0; i < collections.length; i++) {
             processListAndPostToUrl(collections[i]);
         }
         return null;
     }
 
-    private void processListAndPostToUrl(Collection<float[]> list) {
-        for (float[] data : list) {
+    private void processListAndPostToUrl(Collection<SensorEvent> list) {
+        for (SensorEvent data : list) {
             //do some calc here
         }
         //post to http here
