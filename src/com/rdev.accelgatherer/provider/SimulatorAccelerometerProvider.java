@@ -2,6 +2,7 @@ package com.rdev.accelgatherer.provider;
 
 import android.content.Context;
 import android.hardware.SensorManager;
+import com.rdev.accelgatherer.data.SensorTypeEnum;
 import org.openintents.sensorsimulator.hardware.Sensor;
 import org.openintents.sensorsimulator.hardware.SensorEvent;
 import org.openintents.sensorsimulator.hardware.SensorEventListener;
@@ -42,15 +43,18 @@ class SimulatorAccelerometerProvider extends AbstractAccelerometerProvider imple
         } catch (Exception ex) {
             System.out.println("ex = " + ex);
         }
-        final Sensor mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.type != Sensor.TYPE_ACCELEROMETER)
+        if (!(event.type == Sensor.TYPE_ACCELEROMETER || event.type == Sensor.TYPE_ORIENTATION))
             return;
 
-        com.rdev.accelgatherer.data.SensorEvent evt = new com.rdev.accelgatherer.data.SensorEvent(event.values, event.accuracy, event.time);
+        SensorTypeEnum sensorTypeE = SensorTypeEnum.ACCELEROMETER;
+        if (event.type == Sensor.TYPE_ORIENTATION) {
+            sensorTypeE = SensorTypeEnum.ORIENTATION;
+        }
+        com.rdev.accelgatherer.data.SensorEvent evt = new com.rdev.accelgatherer.data.SensorEvent(event.values, event.accuracy, event.time, sensorTypeE);
 
         notifySensorChanged(evt);
     }

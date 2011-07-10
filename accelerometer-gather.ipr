@@ -3,6 +3,19 @@
   <component name="AntConfiguration">
     <defaultAnt bundledAnt="true" />
   </component>
+  <component name="ArtifactManager">
+    <artifact type="exploded-war" name="testReceiver:war exploded">
+      <output-path>$PROJECT_DIR$/out/artifacts/testReceiver</output-path>
+      <root id="root">
+        <element id="javaee-facet-resources" facet="testReceiver/web/Web" />
+        <element id="directory" name="WEB-INF">
+          <element id="directory" name="classes">
+            <element id="module-output" name="testReceiver" />
+          </element>
+        </element>
+      </root>
+    </artifact>
+  </component>
   <component name="CompilerConfiguration">
     <option name="DEFAULT_COMPILER" value="Javac" />
     <resourceExtensions />
@@ -172,6 +185,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/accelerometer-gather.iml" filepath="$PROJECT_DIR$/accelerometer-gather.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../testReceiver/testReceiver.iml" filepath="$PROJECT_DIR$/../testReceiver/testReceiver.iml" />
     </modules>
   </component>
   <component name="ProjectResources">

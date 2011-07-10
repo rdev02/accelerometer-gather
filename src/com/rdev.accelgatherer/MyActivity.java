@@ -3,14 +3,16 @@ package com.rdev.accelgatherer;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.PowerManager;
 import android.widget.TextView;
 import com.rdev.accelgatherer.data.SensorDataListener;
+import com.rdev.accelgatherer.data.SensorEvent;
 import com.rdev.accelgatherer.provider.AbstractAccelerometerProvider;
 import com.rdev.accelgatherer.provider.AccelProviderFactory;
 
+import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -81,11 +83,11 @@ public class MyActivity extends Activity {
     class SimulationView extends TextView implements SensorDataListener {
 
         private long lastUpdate = System.currentTimeMillis();
-        private List<float[]> dataList;
+        private List<SensorEvent> dataList;
 
         public SimulationView(Context context) {
             super(context);
-            dataList = new LinkedList<float[]>();
+            dataList = new LinkedList<SensorEvent>();
         }
 
         @Override
@@ -99,17 +101,54 @@ public class MyActivity extends Activity {
 
             String text = String.format("Sensor data: %.2f : %.2f : %.2f", sensorX, sensorY, sensorZ);
             this.setText(text);
-            dataList.add(values);
+            dataList.add(event);
 
             final int dataSize = dataList.size();
             if (now - lastUpdate > 1000 && dataSize > 0)//more then a second{}
             {
-                List<float[]> copy = new ArrayList<float[]> (dataSize);
-                Collections.copy(dataList,copy);
-                new PostToServerTask().execute(dataList);
+                final List<float[]> copy = new ArrayList<float[]>(dataSize);
+                //postToServer(copy);
+                printToSout(dataList);
                 dataList.clear();
                 lastUpdate = System.currentTimeMillis();
             }
+        }
+
+        private void printToSout(List<SensorEvent> copy) {
+            StringBuffer strBUf = new StringBuffer();
+            for (SensorEvent data : copy) {
+                final float[] values = data.getValues();
+                strBUf.append(String.format("%.2f,%.2f,%.2f,%s\n", values[0], values[1], values[2], data.getSensorType().toString()));
+
+            }
+            //System.out.println(strBUf.toString());
+            File file = new File(Environment.getExternalStorageDirectory(), "file.txt");
+            BufferedWriter writer = null;
+
+            try {
+                if (!file.exists()) {
+                    file.createNewFile();
+                }
+                writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true)));
+                writer.write(strBUf.toString());
+                writer.flush();
+            } catch (IOException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } finally {
+                if (writer != null)
+                    try {
+                        writer.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    }
+            }
+
+
+        }
+
+        private void postToServer(List<float[]> copy) {
+            //Collections.copy(dataList, copy);
+            //new PostToServerTask().execute(dataList);
         }
     }
 

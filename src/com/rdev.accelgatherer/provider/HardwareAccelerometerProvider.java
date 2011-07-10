@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import com.rdev.accelgatherer.data.SensorTypeEnum;
 
 /**
  * Created by IntelliJ IDEA.
@@ -32,14 +33,21 @@ class HardwareAccelerometerProvider extends AbstractAccelerometerProvider implem
         mSensorManager = (SensorManager) cntx.getSystemService(Context.SENSOR_SERVICE);
 
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER)
-            return;
+        final int sensorType = event.sensor.getType();
 
-        com.rdev.accelgatherer.data.SensorEvent evt = new com.rdev.accelgatherer.data.SensorEvent(event.values, event.accuracy, String.valueOf(event.timestamp));
+        if (!(sensorType == Sensor.TYPE_ACCELEROMETER || sensorType == Sensor.TYPE_ORIENTATION))
+            return;
+        SensorTypeEnum sensorTypeE = SensorTypeEnum.ACCELEROMETER;
+        if (sensorType == Sensor.TYPE_ORIENTATION) {
+            sensorTypeE = SensorTypeEnum.ORIENTATION;
+        }
+
+        com.rdev.accelgatherer.data.SensorEvent evt = new com.rdev.accelgatherer.data.SensorEvent(event.values, event.accuracy, String.valueOf(event.timestamp), sensorTypeE);
 
         notifySensorChanged(evt);
     }
